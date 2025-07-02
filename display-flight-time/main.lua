@@ -221,15 +221,11 @@ end
 -- Update is called once a frame by Tacview
 -- Here we retrieve current values which will be displayed by OnDrawTransparentUI()
 
-local takeoff0
-local takeoff1
-local airborne0 = false
-local airborne1 = false
-local flighttime0 = "0,00"
-local flighttime1 = "0,00"
-
-function reset()
+function Reset0()
 	flighttime0 = "0,00"
+end
+
+function Reset1()
 	flighttime1 = "0,00"
 end
 
@@ -343,7 +339,10 @@ function Initialize()
 
 	local mainMenuId = Tacview.UI.Menus.AddMenu(nil, "Flight Time")
 	displayFlighTimeMenuId = Tacview.UI.Menus.AddOption(mainMenuId, "Display Flight Time", displayFlightTime, OnMenuEnableAddOn)
-	local resetFlightTimeMenuId = Tacview.UI.Menus.AddCommand(mainMenuId, "Reset", reset)
+	local setFlightTimeMenuId0 = Tacview.UI.Menus.AddCommand(mainMenuId, "Set primary Flight Time", Set0)
+	local setFlightTimeMenuId1 = Tacview.UI.Menus.AddCommand(mainMenuId, "Set secondary Flight Time", Set1)
+	local resetFlightTimeMenuId0 = Tacview.UI.Menus.AddCommand(mainMenuId, "Reset primary Flight Time", Reset0)
+	local resetFlightTimeMenuId1 = Tacview.UI.Menus.AddCommand(mainMenuId, "Reset secondary Flight Time", Reset1)
 
 	-- Register callbacks
 
