@@ -1,7 +1,8 @@
 --[[
 	Display Values
 
-	Author: BuzyBee
+	Author: Chico
+	Original Author: BuzyBee
 	Last update: 2023-08-14 (Tacview 1.9.0)
 
 	Feel free to modify and improve this script!
@@ -215,26 +216,35 @@ function OnDrawTransparentUI()
 end
 
 ----------------------------------------------------------------
--- Main loop
+-- Main loop (modified by Chico)
 ----------------------------------------------------------------
 
--- Update is called once a frame by Tacview
--- Here we retrieve current values which will be displayed by OnDrawTransparentUI()
+flightsegments0 = {}
+flightsegments1 = {}
 
 function Reset0()
-	flighttime0 = "0,00"
+	flightsegments0 = {}
 end
 
 function Reset1()
-	flighttime1 = "0,00"
+	flightsegments1 = {}
+end
+
+function Set0()
+	table.insert(flightsegments0, Tacview.Context.GetAbsoluteTime())
+end
+
+function Set1()
+	table.insert(flightsegments1, Tacview.Context.GetAbsoluteTime())
 end
 
 function OnUpdate(dt, absoluteTime)
 
 	msg0 = ""
 	msg1 = ""
-
-	-- Verify that the user wants to display values
+	local timeElapsed
+	local time0 = 0
+	local time1 = 0
 
 	if not displayFlightTime then
 		return
@@ -244,68 +254,50 @@ function OnUpdate(dt, absoluteTime)
 	
 	if objectHandle0 then
 
-		local lifeTimeBegin0, landing0 = Tacview.Telemetry.GetLifeTime(objectHandle0)
-		local speedIndex0 = Tacview.Telemetry.GetObjectsNumericPropertyIndex("IAS", false)
-		local speed0 = Tacview.Telemetry.GetNumericSample(objectHandle0, absoluteTime, speedIndex0)
+		for i = 1, #flightsegments0, 2 do
 
-		if speed0 < 50 and not airborne0 then
-			takeoff0 = Tacview.Context.GetAbsoluteTime()
-		elseif speed0 < 50 and airborne0 then
-			takeoff0 = takeoff0
-		elseif speed0 > 50 and airborne0 then
-			landing0 = Tacview.Context.GetAbsoluteTime()
-		end
+			local first = flightsegments0[i]
+			local second = flightsegments0[i + 1]
 		
-		local timeElapsed = Tacview.Context.GetAbsoluteTime() - takeoff0
-			
-		if timeElapsed > 0 then
-
-			local flighttime = disp_time(timeElapsed)
-
-			msg0 = "Flight Time: " .. flighttime
-
-			if flighttime > flighttime0 then
-				flighttime0 = flighttime
+			if first and second then
+				timeElapsed = second - first
+				time0 = time0 + timeElapsed
+			elseif first then
+				timeElapsed = Tacview.Context.GetAbsoluteTime() - first
+				time0 = time0 + timeElapsed
 			end
 
-		elseif timeElapsed <= 0 then
-			msg0 = "Flight Time: " .. flighttime0
+			if time0 > 0 then
+				msg0 = "Flight Time: " .. disp_time(time0)
+			else
+				msg0 = "Flight Time: 0,00"
+			end
 		end
-
+		
 	end
 	 
 	local objectHandle1 = Tacview.Context.GetSelectedObject(1)
 
 	if objectHandle1 then
+		for i = 1, #flightsegments1, 2 do
 
-		local lifeTimeBegin1, landing1 = Tacview.Telemetry.GetLifeTime(objectHandle1)
-		local speedIndex1 = Tacview.Telemetry.GetObjectsNumericPropertyIndex("IAS", false)
-		local speed1 = Tacview.Telemetry.GetNumericSample(objectHandle1, absoluteTime, speedIndex1)
-
-		if speed1 < 50 and not airborne1 then
-			takeoff1 = Tacview.Context.GetAbsoluteTime()
-		elseif speed1 < 50 and airborne1 then
-			takeoff1 = takeoff1
-		elseif speed0 > 50 and airborne1 then
-			landing1 = Tacview.Context.GetAbsoluteTime()
-		end
+			local first = flightsegments1[i]
+			local second = flightsegments1[i + 1]
 		
-		local timeElapsed = Tacview.Context.GetAbsoluteTime() - takeoff1
-			
-		if timeElapsed > 0 then
-
-			local flighttime = disp_time(timeElapsed)
-
-			msg1 = "Flight Time: " .. flighttime
-
-			if flighttime > flighttime1 then
-				flighttime1 = flighttime
+			if first and second then
+				timeElapsed = second - first
+				time1 = time1 + timeElapsed
+			elseif first then
+				timeElapsed = Tacview.Context.GetAbsoluteTime() - first
+				time1 = time1 + timeElapsed
 			end
 
-		elseif timeElapsed <= 1 then
-			msg1 = "Flight Time: " .. flighttime0
+			if time1 > 0 then
+				msg1 = "Flight Time: " .. disp_time(time1)
+			else
+				msg1 = "Flight Time: 0,00"
+			end
 		end
-
 	end	
 
 end
@@ -318,7 +310,7 @@ function disp_time(absoluteTime)
 end
 
 ----------------------------------------------------------------
--- Initialize this addon
+-- Initialize this addon (modified by Chico)
 ----------------------------------------------------------------
 
 function Initialize()
