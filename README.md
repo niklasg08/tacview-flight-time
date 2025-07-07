@@ -4,6 +4,7 @@ Tacview Addon for Flight Time Measurement
 # Origin
 This Tacview Addon is initially from Buzybee. I modified it to fit it into my requirements.
 When you want to use the original Addon, please go to: https://github.com/RaiaSoftwareInc/tacview.add-ons.lua
+Basically, he only computed the life time of the primary and secondary object, which is not that accurate.
 
 # Installation
 First, download the `display-flight-time` zip-directory and unzip it to any directory.
